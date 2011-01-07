@@ -1,0 +1,2 @@
+usb_flash.o: usb_flash.c ../libplf/plf.h ../libplf/types.h \
+ ../libplf/plf_structs.h ../libplf/crc32.h
