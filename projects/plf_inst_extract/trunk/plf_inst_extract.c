@@ -243,7 +243,7 @@ void ExtractInstaller(const char* filename, const char* output_file)
         {
             /* Modify boot params */
             printf("    Modify boot params in section %d\n", newSectIdx);
-            plf_write_payload(fileIdxNew, newSectIdx, boot_params, sizeof(boot_params), 0);
+            plf_write_payload(fileIdxNew, newSectIdx, boot_params, strlen(boot_params)+1, 0);
         }
 
         plf_finish_section(fileIdxNew, newSectIdx);
