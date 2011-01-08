@@ -6,7 +6,7 @@ DEPS    := ${SRCS:.c=.dep}
 XDEPS   := $(wildcard ${DEPS}) 
 
 CCFLAGS = -std=gnu99 -O2 -Wall -Werror
-CCFLAGS+= -ggdb 
+#CCFLAGS+= -ggdb 
 LDFLAGS = -shared
 LIBS    = -lz
 
@@ -19,7 +19,7 @@ endif
 
 ${TARGET}: ${OBJS} 
 	${CC} ${LDFLAGS} -o $@ $^ ${LIBS} 
-#	strip $@
+	strip $@
 
 ${OBJS}: %.o: %.c %.dep 
 	${CC} ${CCFLAGS} -o $@ -c $< 
