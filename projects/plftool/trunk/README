@@ -1,0 +1,18 @@
+plf_inst_extract
+----------------
+
+Description:
+
+
+Requirements:
+	libplf-0.0.1
+	
+How to build:
+	Edit Makefile and call "make". You may need to modify the location of 
+	libplf header files.
+	
+Intstallation:
+	Currently not supported. Do it manually.
+	
+License:
+	See LICENSE
