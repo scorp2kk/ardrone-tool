@@ -23,7 +23,9 @@ Description:
 			An open-source version is planned (no ETA!).
 
 Requirements:
-	libplf-0.0.1, libusb-1.2.2.0
+	libplf-0.0.1
+	libusb-1.2.2.0
+	
 	
 How to build:
 	Edit Makefile and call "make". You may need to modify the location of 

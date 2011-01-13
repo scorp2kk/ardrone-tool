@@ -22,9 +22,9 @@
  */
 
 #include <stdio.h>
-#include <windows.h>
+#include <usb.h>
+#include <getopt.h>
 #include "plf.h"
-#include "usb.h"
 
 #define VERSION_MAJOR  0
 #define VERSION_MINOR  0
@@ -34,6 +34,35 @@
 #define PARROT_PRODUCT_ID 0x1000
 
 #define MAX_RECONNECT_TRY 10
+
+#if defined(__WIN32__)
+#  define sleep(x) Sleep(1000*(x))
+#endif
+
+static const struct option long_options[] =
+{
+        { "help", no_argument, 0, 'h' },
+        { "kernel-test", required_argument, 0, 't' },
+        { 0, 0, 0, 0 }
+};
+
+typedef struct s_command_args_tag
+{
+    u32 mode;
+#define MODE_FLASH 1
+#define MODE_TEST 2
+    const char* bootloader_file;
+    const char* installer_file;
+    const char* payload_file;
+} s_command_args;
+
+s_command_args command_args =
+{
+        .mode = MODE_FLASH,
+        .bootloader_file = "ardrone_usb_bootloader.bin",
+        .installer_file = "ardrone_installer.plf",
+        .payload_file = "ardrone_update.plf"
+};
 
 int start_usb(int* p_interface, usb_dev_handle** p_dev_handle)
 {
@@ -118,7 +147,7 @@ int reconnect_usb(int* p_interface, usb_dev_handle** p_dev_handle)
 
     for (i = 0; i < MAX_RECONNECT_TRY; ++i)
     {
-        Sleep(1000);
+        sleep(1);
         printf("Try [%02d/%02d] to connect to VID: 0x%04x PID: 0x%04x\n", i, MAX_RECONNECT_TRY, PARROT_VENDOR_ID, PARROT_PRODUCT_ID);
         if (start_usb(p_interface, p_dev_handle) == 0)
         {
@@ -184,6 +213,39 @@ int upload_file (usb_dev_handle* devhandle, int interface, const char* filename,
 
 }
 
+
+int parse_options(int argc, char** argv)
+{
+
+    while(1)
+    {
+        int option_index;
+        int result = getopt_long(argc, argv, "t:h", long_options, &option_index);
+
+        if (result < 0)
+            return 0;
+
+
+        switch(result)
+        {
+
+        case 'h':
+            return -1;
+            break;
+
+        case 't':
+            command_args.mode = MODE_TEST;
+            command_args.installer_file = optarg;
+            break;
+
+        }
+
+
+    }
+
+    return 0;
+}
+
 int do_flash()
 {
     char data[] = { 0xA3, 0x00, 0x00, 0x00 };
@@ -191,7 +253,7 @@ int do_flash()
     int interface = -1;
 
 
-    printf("\n\n*** BOOTLOADER INSTALLATION ***\n");
+    printf("\n\n*** DOWNLOADING USB BOOTLOADER ***\n");
     /* Start USB connection */
     if (reconnect_usb(&interface, &devhandle) < 0)
     {
@@ -202,7 +264,7 @@ int do_flash()
     /* *** FLASH THE BOOTLOADER ***/
 
     /* 1. Open the file */
-    FILE* fp = fopen("ardrone_usb_bootloader.bin", "rb");
+    FILE* fp = fopen(command_args.bootloader_file, "rb");
     if (!fp)
     {
         printf("!!! Unable to open file: ardrone_usb_bootloader.bin\n");
@@ -320,7 +382,7 @@ int do_flash()
     }
 
 
-    printf("\n\n*** INSTALLER INSTALLATION ***\n");
+    printf("\n\n*** INSTALLER DOWNLOAD ***\n");
     /* *** RECONNECT *** */
     if (reconnect_usb(&interface, &devhandle) < 0)
     {
@@ -330,7 +392,7 @@ int do_flash()
 
     /* *** LOAD THE INSTALLER *** */
     printf("loading installer\n");
-    if (upload_file(devhandle, interface, "ardrone_installer.plf", 5000) < 0)
+    if (upload_file(devhandle, interface, command_args.installer_file, 5000) < 0)
     {
         printf("!!!upload_file failed...\n");
         usb_release_interface(devhandle, interface);
@@ -338,22 +400,25 @@ int do_flash()
         return -1;
     }
 
-    printf("\n\n*** FIRMWARE INSTALLATION ***\n");
-    /* *** RECONNECT *** */
-    if (reconnect_usb(&interface, &devhandle) < 0)
+    if (command_args.mode == MODE_FLASH)
     {
-        printf("!!! Unable to re-connect to USB device!\n");
-        return -1;
-    }
+        printf("\n\n*** FIRMWARE INSTALLATION ***\n");
+        /* *** RECONNECT *** */
+        if (reconnect_usb(&interface, &devhandle) < 0)
+        {
+            printf("!!! Unable to re-connect to USB device!\n");
+            return -1;
+        }
 
-    /* *** LOAD THE FIRMWARE *** */
-    printf ("loading firmware\n");
-    if (upload_file(devhandle, interface, "ardrone_update.plf", 1000000) < 0)
-    {
-        printf("!!!upload_file failed...\n");
-        usb_release_interface(devhandle, interface);
-        usb_close(devhandle);
-        return -1;
+        /* *** LOAD THE FIRMWARE *** */
+        printf ("loading firmware\n");
+        if (upload_file(devhandle, interface, command_args.payload_file, 1000000) < 0)
+        {
+            printf("!!!upload_file failed...\n");
+            usb_release_interface(devhandle, interface);
+            usb_close(devhandle);
+            return -1;
+        }
     }
 
     /* *** CLOSE CONNECTION *** */
@@ -366,6 +431,11 @@ int do_flash()
 
 int verify_file(const char* filename, int plf_type)
 {
+    if (!filename)
+    {
+        return -1;
+    }
+
     printf("Verifying %s\n", filename);
     if (plf_type != 0)
     {
@@ -417,8 +487,11 @@ int verify_file(const char* filename, int plf_type)
 
 }
 
-int main() {
+int main(int argc, char** argv) {
     int ret_val = 0;
+
+    ret_val = parse_options(argc, argv);
+
 	printf("A.R. Drone Flasher\n");
 	printf("(c) scorpion2k\n");
 
@@ -431,12 +504,18 @@ int main() {
 	printf("2. Connect the Battery to your Drone\n");
 	printf("3. Ensure the drivers are installed and the device shows up in devmgr\n");
 	printf("4. Press any key to continue\n");
+	printf("\n\nMode: %s\n", command_args.mode==MODE_FLASH?"flash":"kernel test");
+
+#if defined(__WIN32__)
 	system("PAUSE");
+#endif
 
 	printf("\n\n*** VERIFICATION ***\n");
-	ret_val += verify_file("ardrone_usb_bootloader.bin", 0);
-	ret_val += verify_file("ardrone_installer.plf", 1);
-	ret_val += verify_file("ardrone_update.plf", 2);
+	ret_val += verify_file(command_args.bootloader_file, 0);
+	ret_val += verify_file(command_args.installer_file, 1);
+
+	if (command_args.mode == MODE_FLASH)
+	    ret_val += verify_file(command_args.payload_file, 2);
 
 
 	if (ret_val != 0)
@@ -457,7 +536,9 @@ int main() {
         printf(" *** INSTALLATION FAILED ***\n");
 	}
 
+#if defined(__WIN32__)
 	system("PAUSE");
+#endif
 
 	return ret_val;
 }
