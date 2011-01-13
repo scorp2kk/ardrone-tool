@@ -1,5 +1,5 @@
 CC      := gcc
-TARGET  := libplf.so.0
+TARGET  := libplf.dll
 SRCS    := plf.c crc32.c gzip.c
 OBJS    := ${SRCS:.c=.o} 
 DEPS    := ${SRCS:.c=.dep} 
