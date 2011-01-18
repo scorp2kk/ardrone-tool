@@ -103,7 +103,12 @@ int start_usb(int* p_interface, usb_dev_handle** p_dev_handle)
 
 					printf("- Number of configurations: %d\n", dev->descriptor.bNumConfigurations );
 
+#if defined(__WIN32__)
+					/* Linux sets the configuration when probing a device. As the installer does not like
+					 * to be configured twice, this call is removed for linux.
+					 */
 					usb_set_configuration(*p_dev_handle, 1);
+#endif
 					*p_interface = usb_claim_interface(*p_dev_handle, 0);
 
 
