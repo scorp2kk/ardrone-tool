@@ -1,0 +1,57 @@
+diff -rupB linux-2.6.27/arch/arm/mach-parrot6/parrot6.c linux-2.6.27.patched/arch/arm/mach-parrot6/parrot6.c
+--- linux-2.6.27/arch/arm/mach-parrot6/parrot6.c	2010-10-14 16:29:52.000000000 +0200
++++ linux-2.6.27.patched/arch/arm/mach-parrot6/parrot6.c	2011-01-16 15:38:41.618041087 +0100
+@@ -184,7 +184,7 @@ static struct spi_board_info p6_eth_spi_
+ static struct parrot_mmc_platform_data p6_mmc_platform_data = {
+ 	.ocr_mask = MMC_VDD_32_33 | MMC_VDD_33_34,
+ 	.wp_pin = 37,
+-#warning no way to specify cd_pin : 36!!!!
++	.cd_pin = 36
+ };
+ 
+ static void sysrq_handle_jtag(int key, struct tty_struct *tty)
+diff -rupB linux-2.6.27/arch/arm/mach-parrot6/parrot6i.c linux-2.6.27.patched/arch/arm/mach-parrot6/parrot6i.c
+--- linux-2.6.27/arch/arm/mach-parrot6/parrot6i.c	2010-10-14 16:29:52.000000000 +0200
++++ linux-2.6.27.patched/arch/arm/mach-parrot6/parrot6i.c	2011-01-16 15:38:37.194041079 +0100
+@@ -182,7 +182,7 @@ static struct spi_board_info p6i_eth_spi
+ static struct parrot_mmc_platform_data p6i_mmc_platform_data = {
+ 	.ocr_mask = MMC_VDD_32_33 | MMC_VDD_33_34,
+ 	.wp_pin = 1,
+-#warning no way to specify cd_pin : 2!!!!
++	.cd_pin = 2
+ };
+ 
+ static void sysrq_handle_jtag(int key, struct tty_struct *tty)
+diff -rupB linux-2.6.27/arch/arm/plat-parrot/include/mach/mmc.h linux-2.6.27.patched/arch/arm/plat-parrot/include/mach/mmc.h
+--- linux-2.6.27/arch/arm/plat-parrot/include/mach/mmc.h	2010-10-14 16:29:52.000000000 +0200
++++ linux-2.6.27.patched/arch/arm/plat-parrot/include/mach/mmc.h	2011-01-16 15:37:38.714041088 +0100
+@@ -4,6 +4,7 @@
+ struct parrot_mmc_platform_data {
+ 	unsigned int ocr_mask;
+ 	unsigned int wp_pin;
++	unsigned int cd_pin;
+ };
+ 
+ #endif
+diff -rupB linux-2.6.27/drivers/parrot/mmc/p6_sdhci.c linux-2.6.27.patched/drivers/parrot/mmc/p6_sdhci.c
+--- linux-2.6.27/drivers/parrot/mmc/p6_sdhci.c	2010-10-14 16:29:53.000000000 +0200
++++ linux-2.6.27.patched/drivers/parrot/mmc/p6_sdhci.c	2011-01-19 00:56:07.974040916 +0100
+@@ -120,8 +120,16 @@ static int __devinit p6_sdhci_probe(stru
+ 		goto no_ioremap;
+ 	}
+ 
+-	if (drv_data->pdata && drv_data->pdata->wp_pin) {
+-		ret =  gpio_direction_input(drv_data->pdata->wp_pin);
++	if (drv_data->pdata) {
++		if (drv_data->pdata->wp_pin)
++		{
++			ret =  gpio_direction_input(drv_data->pdata->wp_pin);
++		}
++
++		if (drv_data->pdata->cd_pin)
++		{
++			ret =  gpio_direction_input(drv_data->pdata->cd_pin);
++		}
+ 	}
+ 
+ 	host->irq = res_irq->start;
