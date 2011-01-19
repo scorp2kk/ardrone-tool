@@ -1,0 +1,1 @@
+parrotparts=nand0:256K(Pbootloader),8M(Pmain_boot),8M(Pfactory),16M(Psystem),98048K(Pupdate) console=ttyPA0,115200 loglevel=8 ubi.mtd=Pfactory,2048 ubi.mtd=Psystem,2048 ubi.mtd=Pupdate,2048 root=ubi1:system rootfstype=ubifs parrot5.low_latency=1
