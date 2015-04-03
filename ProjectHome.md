@@ -1,0 +1,1 @@
+This project aims to develop tools for A.R. Drone, for example to create and flash custom linux kernels.
