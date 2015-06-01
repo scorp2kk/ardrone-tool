@@ -1,5 +1,9 @@
 CC      := gcc
+ifeq ($(OS),Windows_NT)
 TARGET  := plf_inst_extract.exe
+else
+TARGET  := plf_inst_extract
+endif
 SRCS    := plf_inst_extract.c
 OBJS    := ${SRCS:.c=.o} 
 DEPS    := ${SRCS:.c=.dep} 

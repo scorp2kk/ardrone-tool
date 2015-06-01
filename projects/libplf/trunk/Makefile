@@ -7,6 +7,7 @@ XDEPS   := $(wildcard ${DEPS})
 
 CCFLAGS = -std=gnu99 -O2 -Wall -Werror
 #CCFLAGS+= -ggdb 
+CCFLAGS+= -fPIC
 LDFLAGS = -shared
 LIBS    = -lz
 
