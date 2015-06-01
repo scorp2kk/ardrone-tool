@@ -168,7 +168,7 @@ int write_file(const char* path, const void* data, u32 len, u32 umask)
     {
         return -1;
     }
-    return 0;
+    return retval;
 }
 
 int make_dir_out(const char* path, u32 umask)
