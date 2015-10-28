@@ -98,7 +98,7 @@ void ExtractInstaller(const char* filename, const char* output_file)
     int installerIdx, i, num_entries, num_entries_installer;
     int fileIdx, fileIdxInstaller, fileIdxNew;
     s_plf_file *fileHdrInstaller, *fileHdrNew, *fileHdrOld;
-    s_plf_section* installerSection;
+    s_plf_section* installerSection = 0;
     void* buffer;
 
     fileIdx = plf_open_file(filename);

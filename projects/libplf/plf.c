@@ -22,6 +22,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with libplf.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
@@ -29,6 +30,11 @@
 #include <sys/stat.h>
 #include "plf_int.h"
 
+#ifdef __WIN32__
+# define F_O_BINARY O_BINARY
+#else
+# define F_O_BINARY 0
+#endif
 
 /* From gzip.c */
 int  gz_uncompress (u8 *dest, u32 *destLen, const u8 *source, u32 sourceLen);
@@ -73,7 +79,7 @@ int plf_open_file(const char* filename)
     fileEntry = &plf_files[fileIdx];
 
     /* Open the given filename */
-    fileEntry->fildes = open(filename, O_RDONLY | O_BINARY);
+    fileEntry->fildes = open(filename, O_RDONLY | F_O_BINARY);
 
     if (fileEntry->fildes < 0)
     {
@@ -121,7 +127,7 @@ int plf_create_file(const char* filename)
     fileEntry = &plf_files[fileIdx];
 
     /* Open the given filename */
-    fileEntry->fildes = open(filename,  O_RDWR | O_CREAT | O_BINARY, 0644  );
+    fileEntry->fildes = open(filename,  O_RDWR | O_CREAT | F_O_BINARY, 0644  );
 
     if (fileEntry->fildes < 0)
     {

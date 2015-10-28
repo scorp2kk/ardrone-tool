@@ -1,5 +1,5 @@
 CC      := gcc
-TARGET  := libplf.dll
+TARGET  := libplf.so
 SRCS    := plf.c crc32.c gzip.c
 OBJS    := ${SRCS:.c=.o} 
 DEPS    := ${SRCS:.c=.dep} 
@@ -7,6 +7,7 @@ XDEPS   := $(wildcard ${DEPS})
 
 CCFLAGS = -std=gnu99 -O2 -Wall -Werror
 #CCFLAGS+= -ggdb 
+CCFLAGS+= -fPIC
 LDFLAGS = -shared
 LIBS    = -lz
 

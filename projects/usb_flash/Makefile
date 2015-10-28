@@ -1,5 +1,5 @@
 CC      := gcc
-TARGET  := usb_flash.exe
+TARGET  := usb_flash
 SRCS    := usb_flash.c
 OBJS    := ${SRCS:.c=.o} 
 DEPS    := ${SRCS:.c=.dep} 
