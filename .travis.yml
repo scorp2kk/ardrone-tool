@@ -1,3 +1,7 @@
 language: c
-script: make
 compiler: gcc
+script:
+  - cd projects/libplf && make && cd ../
+  - cd projects/plf_inst_extract && make && cd ../
+  - cd projects/plftool && make && cd ../
+  - cd projects/usb_flash && make && cd ../
