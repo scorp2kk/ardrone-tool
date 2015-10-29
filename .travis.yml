@@ -7,5 +7,5 @@ script:
   - make -C projects/libplf
   - make -C projects/plf_inst_extract
   - make -C projects/plftool
-  #- make -C projects/plfinfo
+  - make -C projects/plfinfo
   - make -C projects/usb_flash

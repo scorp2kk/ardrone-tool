@@ -1,0 +1,20 @@
+# plfinfo
+
+Description:
+  Returns information on any given .plf file
+
+Requirements:
+	libplf-0.0.1
+
+How to build:
+	Edit Makefile and call "make". You may need to modify the location of
+	libplf header files.
+
+How to build on OSX:
+  Edit Makefile and call "make -f Makefile.osx"
+
+Installation:
+	Currently not supported. Do it manually.
+
+License:
+	See LICENSE
