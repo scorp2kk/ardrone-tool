@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/SteveClement/ardrone-tool.svg?branch=master)](https://travis-ci.org/SteveClement/ardrone-tool)
+
 # ardrone-tool
 
 Tools to handle parrot firmware files (.plf)
