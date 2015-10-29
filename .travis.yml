@@ -1,5 +1,8 @@
 language: c
 compiler: gcc
+addons:
+  apt:
+    packages: libusb-dev
 script:
   - cd projects/libplf && make && cd ../
   - cd plf_inst_extract && make && cd ../
