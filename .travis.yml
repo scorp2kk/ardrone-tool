@@ -5,7 +5,7 @@ addons:
     packages: libusb-dev
 script:
   - make -C projects/libplf
-  - make -C project/plf_inst_extract
-  - make -C project/plftool
-  #- make -C project/plfinfo
-  - make -C project/usb_flash
+  - make -C projects/plf_inst_extract
+  - make -C projects/plftool
+  #- make -C projects/plfinfo
+  - make -C projects/usb_flash
