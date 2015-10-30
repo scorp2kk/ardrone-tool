@@ -1,7 +1,7 @@
 /*
  * plfinfo.c
  *
- * Copyright (c) 2015 @SteveClement, All rights reserved
+ * 2011 & 2015 scorp2kk & @SteveClement
  *
  * Description:
  *   Returns information on any given .plf file
@@ -187,7 +187,7 @@ int parse_options(int argc, char** argv)
     while(1)
     {
         int option_index;
-        int result = getopt_long(argc, argv, "i:h", long_options, &option_index);
+        int result = getopt_long(argc, argv, "i:h:v", long_options, &option_index);
 
         if (result < 0)
             return 0;
@@ -221,7 +221,7 @@ int main(int argc, char** argv)
     const s_plf_version_info * libplf_version;
     printf("\n\nplfinfo\n");
     printf("****************\n");
-    printf("(c) 2015 @SteveClement, All rights reserved\n");
+    printf("2011 & 2015 scorp2kk & @SteveClement\n");
     printf("\n\n");
 
     libplf_version = plf_lib_get_version();
