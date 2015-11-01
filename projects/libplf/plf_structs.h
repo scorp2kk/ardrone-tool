@@ -47,11 +47,11 @@ typedef struct s_plf_file_tag /* Size: 0x38 Byte */
     u32 dwFileSize;     /* +0x34 File size */
 } s_plf_file;
 
-/* Represents a section */
+/* Section header */
 typedef struct s_plf_section_tag /* Size: 0x14 Byte */
 {
-    u32 dwSectionType;  /* +0x00 */
-    u32 dwSectionSize;  /* +0x04 */
+    u32 dwSectionType;  /* +0x00  => Types in in plftool/plftool.c */
+    u32 dwSectionSize;  /* +0x04 Size of the content of the section */
     u32 dwCRC32;        /* +0x08 */
     u32 dwLoadAddr;     /* +0x0C */
     u32 dwUncomprSize;  /* +0x10 */
