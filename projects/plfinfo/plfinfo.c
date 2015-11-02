@@ -58,6 +58,7 @@ void DumpPLF(int fileidx)
     int i, num_sections;
 
     s_plf_file* header = plf_get_file_header(fileidx);
+    printf("         dwMagic: 0x%08x\n", header->dwMagic);
     printf("    dwHdrVersion: 0x%08x\n", header->dwHdrVersion);
     printf("       dwHdrSize: 0x%08x\n", header->dwHdrSize);
     printf("   dwSectHdrSize: 0x%08x\n", header->dwSectHdrSize);
