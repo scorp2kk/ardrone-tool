@@ -4,7 +4,8 @@
 
 Tools to handle parrot firmware files (.plf)
 
-AR Drone 2.0 is currently the only supported format.
+Currently all the Parrot firmwares >10 are supported.
+
 Please contribute to extend it to the minidrone series.
 
 ## libplf
