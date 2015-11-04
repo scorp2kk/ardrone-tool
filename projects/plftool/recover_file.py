@@ -26,9 +26,13 @@ for fn in sorted(glob.glob('a/*')):
     with open(fn, 'rb') as f:
         a, b, c = re.findall(br'([^\x00]*)\x00([^\x00]*)\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00(.*)', f.read(), re.DOTALL)[0]
         print(a, b, len(c))
-        #if len(c) == 0:
+        if len(c) == 0:
             # Directory
-            #os.mkdir('fs/' + a.decode("utf-8"))
-        #else:
-            #with open('fs/' + a.decode("utf-8"), 'wb') as nf:
-            #    nf.write(c)
+            os.mkdir('fs/' + a.decode("utf-8"))
+        elif b == b'\xff\xa1':
+            os.symlink(c.decode("utf-8").rstrip('\0'), 'fs/' + a.decode("utf-8").rstrip('\0'))
+        else:
+            with open('fs/' + a.decode("utf-8"), 'wb') as nf:
+                nf.write(c)
+            if b == b'\xed\x81':
+                os.chmod('fs/' + a.decode("utf-8"), 775)
