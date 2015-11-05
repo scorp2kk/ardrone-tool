@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/SteveClement/ardrone-tool.svg?branch=master)](https://travis-ci.org/SteveClement/ardrone-tool)
+[![Coverage Status](https://coveralls.io/repos/SteveClement/ardrone-tool/badge.svg?branch=master&service=github)](https://coveralls.io/github/SteveClement/ardrone-tool?branch=master)
 
 # ardrone-tool
 
