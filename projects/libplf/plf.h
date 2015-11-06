@@ -36,7 +36,7 @@
 
 
 #define PLF_LIB_VERSION ( (PLF_LIB_VERSION_MAJOR << 16) | (PLF_LIB_VERSION_MINOR << 8) | (PLF_LIB_VERSION_BUGFIX) )
-#define PLF_MAGIC_CODE 0x21464C50
+#define PLF_MAGIC_CODE 0x21464C50  // Not a PLF file without that.
 
 
 typedef struct s_plf_version_info_tag

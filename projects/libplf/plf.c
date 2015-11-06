@@ -58,11 +58,19 @@ static const s_plf_version_info plf_lib_version = {
 };
 
 
+/*
+ * Lib version
+ */
 const s_plf_version_info* plf_lib_get_version(void)
 {
     return &plf_lib_version;
 }
 
+
+
+/*
+ * Open a file fom the file system
+ */
 int plf_open_file(const char* filename)
 {
     int fileIdx;
@@ -92,6 +100,9 @@ int plf_open_file(const char* filename)
     return plf_int_open_file(fileIdx);
 }
 
+/*
+ * Open entry point to PLF file from memory
+ */
 int plf_open_ram(const void* buffer, u32 buffer_size)
 {
     int fileIdx;
@@ -114,6 +125,10 @@ int plf_open_ram(const void* buffer, u32 buffer_size)
     return plf_int_open_file(fileIdx);
 }
 
+
+/*
+ * New PLF File
+ */
 int plf_create_file(const char* filename)
 {
     int fileIdx;
@@ -148,6 +163,10 @@ int plf_create_file(const char* filename)
     return fileIdx;
 }
 
+
+/*
+ * Close the files, cleanup the memory
+ */
 int plf_close(int fileIdx)
 {
     s_plf_file_entry* fileEntry;
@@ -190,6 +209,9 @@ int plf_close(int fileIdx)
     return 0;
 }
 
+/*
+ * Get PLF header
+ */
 s_plf_file* plf_get_file_header(int fileIdx)
 {
     if (fileIdx >= PLF_MAX_ALLOWED_FILES || plf_files[fileIdx].hdr.dwMagic
@@ -202,13 +224,18 @@ s_plf_file* plf_get_file_header(int fileIdx)
 }
 
 
-
+/*
+ * Number of section in the file
+ */
 int plf_get_num_sections(int fileIdx)
 {
     PLF_VERIFY_IDX(fileIdx);
     return plf_files[fileIdx].num_entries;
 }
 
+/*
+ * Get Section header
+ */
 s_plf_section* plf_get_section_header(int fileIdx, int sectIdx)
 {
     s_plf_section_entry* curEntry;
@@ -220,6 +247,10 @@ s_plf_section* plf_get_section_header(int fileIdx, int sectIdx)
     return &(curEntry->hdr);
 }
 
+
+/*
+ * Content of a section
+ */
 int plf_get_payload_raw(int fileIdx, int sectIdx, void* dst_buffer, u32 offset,
         u32 len)
 {
@@ -239,6 +270,9 @@ int plf_get_payload_raw(int fileIdx, int sectIdx, void* dst_buffer, u32 offset,
 }
 
 
+/*
+ * Content of a section, conpressed
+ */
 int plf_get_payload_uncompressed(int fileIdx, int sectIdx, void** buffer, u32* buffer_size)
 {
     s_plf_section_entry* curEntry;
@@ -299,6 +333,9 @@ int plf_get_payload_uncompressed(int fileIdx, int sectIdx, void** buffer, u32* b
     return 0;
 }
 
+/*
+ * CRC32 checksum of a section
+ */
 int plf_check_crc(int fileIdx, int sectIdx)
 {
     u32 crc_accum = 0;
@@ -373,6 +410,9 @@ int plf_check_crc(int fileIdx, int sectIdx)
 
 }
 
+/*
+ * Verify CRC32 of all sections
+ */
 int plf_verify(int fileIdx)
 {
     int i, num_entries;
@@ -394,6 +434,9 @@ int plf_verify(int fileIdx)
     return 0;
 }
 
+/*
+ * Initialize new section
+ */
 int plf_begin_section(int fileIdx)
 {
     int newSctIdx;
@@ -437,6 +480,9 @@ int plf_begin_section(int fileIdx)
     return newSctIdx;
 }
 
+/*
+ * Add payload to a section
+ */
 int plf_write_payload(int fileIdx, int sectIndx, const void* buffer, u32 len, u8 compress)
 {
     u32 bytes_written;
@@ -477,6 +523,9 @@ int plf_write_payload(int fileIdx, int sectIndx, const void* buffer, u32 len, u8
     return bytes_written;
 }
 
+/*
+ * Finalize section, compute CRC 32, add to file
+ */
 int plf_finish_section(int fileIdx, int sectIdx)
 {
     s_plf_file_entry* fileEntry;
@@ -526,6 +575,9 @@ int plf_finish_section(int fileIdx, int sectIdx)
     return 0;
 }
 
+/*
+ * Create a new file.
+ */
 static int plf_int_new_file()
 {
     int fileIdx;
@@ -586,6 +638,9 @@ static s_plf_section_entry* plf_int_get_section(int fileIdx, int sectIdx)
     return curEntry;
 }
 
+/*
+ * Read all the entries
+ */
 static int plf_int_read_entries(int fileIdx)
 {
     s_plf_file_entry* fileEntry;
@@ -717,6 +772,10 @@ static int plf_int_read_entries(int fileIdx)
     return 0;
 }
 
+
+/*
+ * Open entry point of the file. This section is a s_plf_file (see plf_structs.h)
+ */
 static int plf_int_open_file(int fileIdx)
 {
     int retval;
@@ -751,6 +810,9 @@ static int plf_int_open_file(int fileIdx)
     return fileIdx;
 }
 
+/*
+ * Read one section
+ */
 static int plf_int_read(int fileIdx, void* dst, u32 offset, u32 len)
 {
     s_plf_file_entry* fileEntry;
@@ -763,6 +825,7 @@ static int plf_int_read(int fileIdx, void* dst, u32 offset, u32 len)
 
     fileEntry = &plf_files[fileIdx];
 
+    // From memory?
     if (fileEntry->fildes == -1)
     {
         if (offset >= fileEntry->buffer_size)
@@ -788,6 +851,9 @@ static int plf_int_read(int fileIdx, void* dst, u32 offset, u32 len)
     return bytes_read;
 }
 
+/*
+ * Write (to file or in memory)
+ */
 static int plf_int_write(int fileIdx, const void* src, u32 offset, u32 len)
 {
     s_plf_file_entry* fileEntry;
@@ -825,6 +891,10 @@ static int plf_int_write(int fileIdx, const void* src, u32 offset, u32 len)
     return bytes_written;
 }
 
+
+/*
+ * Add a section at the end of the chained list
+ */
 static int plf_int_add_entry(int fileIdx, const s_plf_section* section, u32 offset)
 {
     int entryIdx;

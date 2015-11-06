@@ -35,23 +35,32 @@
 
 #define PLF_VERIFY_IDX(idx) if (idx >= PLF_MAX_ALLOWED_FILES || plf_files[idx].hdr.dwMagic != PLF_MAGIC_CODE) return PLF_E_FILE_IDX;
 
+
+
+/*
+ * Object of the chained list
+ */
 typedef struct s_plf_section_entry_tag
 {
-    s_plf_section                   hdr;
-    u32                             offset;
-    struct s_plf_section_entry_tag* next;
+    s_plf_section                   hdr;    // Section header (See in plf_structs.h)
+    u32                             offset; // Absolute starting point of the content of the section (size: hdr.dwSectionSize)
+    struct s_plf_section_entry_tag* next;  // Pointer to the next section
 } s_plf_section_entry;
 
+
+/*
+ * Entry point of the file
+ */
 typedef struct s_plf_file_entry_tag
 {
-    s_plf_file              hdr;
-    int                     fildes;
-    const void*             buffer;
-    u32                     buffer_size;
-    u32                     num_entries;
-    s_plf_section_entry*    entries;
-    u32                     flags;
-    u32                     current_size;
+    s_plf_file              hdr;          // PLF header (See in plf_structs.h)
+    int                     fildes;       // File handle
+    const void*             buffer;       // PLF in memory
+    u32                     buffer_size;  // Size of the PLF in memory
+    u32                     num_entries;  // Number of section
+    s_plf_section_entry*    entries;      // Entry point of the chained list of sections (first section
+    u32                     flags;        // Access rights to on the file/sections
+    u32                     current_size; // Sixe of the file on the disk
 #define PLF_FILE_FLAG_READ     0x00000001u
 #define PLF_FILE_FLAG_WRITE    0x00000002u
 #define PLF_FILE_FLAG_OPENED   0x00000004u

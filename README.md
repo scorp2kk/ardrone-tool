@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/SteveClement/ardrone-tool.svg?branch=master)](https://travis-ci.org/SteveClement/ardrone-tool)
+[![Coverage Status](https://coveralls.io/repos/SteveClement/ardrone-tool/badge.svg?branch=master&service=github)](https://coveralls.io/github/SteveClement/ardrone-tool?branch=master)
 
 # ardrone-tool
 
 Tools to handle parrot firmware files (.plf)
 
-AR Drone 2.0 is currently the only supported format.
+Currently all the Parrot firmwares >10 are supported.
+
 Please contribute to extend it to the minidrone series.
 
 ## libplf
