@@ -31,6 +31,8 @@
 
 
 int verbose = 0;
+int segments = 0;
+int debug = 0;
 const char* input_file_name =0;
 
 const char boot_params_default[] = "parrotparts=nand0:256K(Pbootloader),8M(Pmain_boot),8M(Pfactory),16M(Psystem),98048K(Pupdate) "
@@ -49,6 +51,7 @@ static const struct option long_options[] =
 {
         { "input-file", required_argument, 0, 'i' },
         { "help", no_argument, 0, 'h' },
+        { "segments", no_argument, 0, 's' },
         { "verbose", no_argument, 0, 'v' },
         { 0, 0, 0, 0 }
 };
@@ -77,20 +80,18 @@ void DumpPLF(int fileidx)
     num_sections = plf_get_num_sections(fileidx);
     printf("-- Number of sections: %d --\n", num_sections);
 
-    for (i = 0; i < num_sections; ++i)
+    if (segments > 0)
     {
-        s_plf_section* section = plf_get_section_header(fileidx, i);
+        for (i = 0; i < num_sections; ++i)
+        {
+            s_plf_section* section = plf_get_section_header(fileidx, i);
 
-        printf(
-                "Sect %04i: Type: 0x%08x, Size: 0x%08x, CRC32: 0x%08x, LoadAddr: 0x%08x, UncomprSize: 0x%08x\n",
-                i, section->dwSectionType, section->dwSectionSize,
-                section->dwCRC32, section->dwLoadAddr, section->dwUncomprSize);
+            printf(
+                    "Sect %04i: Type: 0x%08x, Size: 0x%08x, CRC32: 0x%08x, LoadAddr: 0x%08x, UncomprSize: 0x%08x\n",
+                    i, section->dwSectionType, section->dwSectionSize,
+                    section->dwCRC32, section->dwLoadAddr, section->dwUncomprSize);
+        }
     }
-
-
-
-    printf("*** END OF DUMP ***\n\n");
-
 }
 
 void FileInfo(const char* filename)
@@ -174,6 +175,7 @@ void print_help(const char* name)
 
     printf("%-40s %s\n", "-h, --help",                      "Print this information");
     printf("%-40s %s\n", "-i, --input-file <input_file>",   "Input file name");
+    printf("%-40s %s\n", "-s, --segments",   "Show segments");
     printf("%-40s %s\n", "-v, --verbose",   "Verbose mode");
 
     printf("\n\n");
@@ -188,7 +190,7 @@ int parse_options(int argc, char** argv)
     while(1)
     {
         int option_index;
-        int result = getopt_long(argc, argv, "i:h:v", long_options, &option_index);
+        int result = getopt_long(argc, argv, "i:h:s:v", long_options, &option_index);
 
         if (result < 0)
             return 0;
@@ -202,6 +204,10 @@ int parse_options(int argc, char** argv)
 
         case 'h':
             return -1;
+            break;
+
+        case 's':
+            segments = 1;
             break;
 
         case 'v':
