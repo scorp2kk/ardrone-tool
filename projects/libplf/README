@@ -1,0 +1,23 @@
+# libplf
+
+Description:
+	Library to read / write PLF files.
+
+Requirements:
+	zlib-1.2.3
+
+OSX:
+
+brew install gcc
+
+How to build on Linux:
+	Edit Makefile and call "make"
+
+How to build on OSX:
+  Edit Makefile and call "make -f Makefile.osx"
+
+Installation:
+	Currently not supported. Do it manually.
+
+License:
+	See LICENSE

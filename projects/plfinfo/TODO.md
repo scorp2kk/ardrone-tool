@@ -1,0 +1,2 @@
+- [] Fix segfault if no file name is given or file name is wrong
+- [] Make -i obsolete

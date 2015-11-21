@@ -1,0 +1,40 @@
+# usb_flash
+
+Description:
+	This tool allows to load a new firmware over USB.
+
+	The tool must be executed from a location where the following
+	files exists:
+
+		- ardrone_update.plf
+			The firmware to flash. Can be downloaded from parrot's homepage.
+
+		- ardrone_installer.plf
+			The actual kernel that installs the ardrone_update.plf
+
+			Can be obtained from ardrone_update.plf with plf_inst_extract:
+			> plf_inst_extract -i ardrone_update.plf -o ardrone_installer.plf
+
+		- ardrone_usb_bootloader.bin
+			Contains the USB bootloader in binary format. This file can be
+			obtained from AR_DRONE_FLASHER_v1_00_08_Installer.
+
+			An open-source version is planned (no ETA!).
+
+Requirements:
+	libplf-0.0.1
+	libusb-1.2.2.0
+
+
+How to build:
+	Edit Makefile and call "make". You may need to modify the location of
+	libplf header files.
+
+How to build on OSX:
+  Edit Makefile and call "make -f Makefile.osx"
+
+Installation:
+	Currently not supported. Do it manually.
+
+License:
+	See LICENSE

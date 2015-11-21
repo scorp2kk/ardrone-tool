@@ -1,5 +1,26 @@
+[![Build Status](https://travis-ci.org/SteveClement/ardrone-tool.svg?branch=master)](https://travis-ci.org/SteveClement/ardrone-tool)
+[![Coverage Status](https://coveralls.io/repos/SteveClement/ardrone-tool/badge.svg?branch=master&service=github)](https://coveralls.io/github/SteveClement/ardrone-tool?branch=master)
+
 # ardrone-tool
-Automatically exported from code.google.com/p/ardrone-tool
 
+Tools to handle parrot firmware files (.plf)
 
-NOTE: This project is no longer maintained. 
+Currently all the Parrot firmwares >10 are supported.
+
+Please contribute to extend it to the minidrone series.
+
+## libplf
+
+Library to read / write PLF files.
+
+## plftool
+
+## plf_inst_extract
+
+Extracts the installer from a given ardrone_update.plf. Also modifies the boot parameters and load addresses.
+
+## usb_flash
+
+This tool allows to load a new firmware over USB. 
+    
+
