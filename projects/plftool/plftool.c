@@ -157,7 +157,6 @@ int write_file(const char* path, const void* data, u32 len, u32 umask)
 #else
     fi = open(path,  O_WRONLY | O_CREAT, umask);
 #endif
-    retval = 0;
 
     if (fi >= 0)
     {
@@ -166,7 +165,7 @@ int write_file(const char* path, const void* data, u32 len, u32 umask)
     }
     else
     {
-        return -1;
+        retval = -1;
     }
     return retval;
 }
