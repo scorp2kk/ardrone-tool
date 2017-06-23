@@ -171,7 +171,7 @@ FileInfo_exit_1:
 
 void print_help(const char* name)
 {
-    printf("usage: %s [-h] [-o <output_file>] -i <updater_file>\n", name);
+    printf("usage: %s [-h] [-s] [-v] -i <updater_file>\n", name);
 
     printf("%-40s %s\n", "-h, --help",                      "Print this information");
     printf("%-40s %s\n", "-i, --input-file <input_file>",   "Input file name");
@@ -190,7 +190,7 @@ int parse_options(int argc, char** argv)
     while(1)
     {
         int option_index;
-        int result = getopt_long(argc, argv, "i:h:s:v", long_options, &option_index);
+        int result = getopt_long(argc, argv, "i:hsv", long_options, &option_index);
 
         if (result < 0)
             return 0;
