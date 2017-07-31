@@ -51,7 +51,37 @@ typedef struct s_exec_sect_config_tag
 {
     const char* input_file;
     u32 load_addr;
+
 } s_exec_sect_config;
+
+typedef struct s_load_config_tag
+{
+    u32 entry_point;
+    u32 hdr_version;
+    
+    struct
+    {
+        u32 major;
+        u32 minor;
+        u32 bugfix;
+    } version;
+    
+    struct
+    {
+        u32 plat;
+        u32 appl;
+    } target;
+
+    u32 hw_compat;
+    u32 lang_zone;
+
+    s_exec_sect_config bootloader;
+    s_exec_sect_config installer;
+    s_exec_sect_config volume_config;
+    s_exec_sect_config main_boot;
+    s_exec_sect_config *file_action;
+
+} s_load_config;
 
 typedef struct s_kernel_config_tag
 {
@@ -108,15 +138,13 @@ int write_plf_exec_sect(const s_exec_sect_config* cfg, int fileIdx, int type)
     void* buffer;
     if (cfg == 0 || fileIdx < 0)
         return -1;
-
+    
     fp = fopen(cfg->input_file, "rb");
     if (fp == 0)
     {
         printf("!!! unable to open file %s for reading\n", cfg->input_file);
         return -1;
     }
-
-
 
     sectIdx = plf_begin_section(fileIdx);
     if (sectIdx < 0)
@@ -184,6 +212,109 @@ int verify_kernel_config(const s_kernel_config* cfg)
     }
 
     return 0-error;
+}
+
+int build_load(const s_ini_handle* ini_file)
+{
+    const s_ini_section* ini_sect;
+    s_load_config payload;
+    //int has_file_action = 0;
+    int plf_file_idx;
+    s_plf_file* plf_file_hdr;
+    int tmp_val;
+
+    /* 1. Section file */
+    __GET_SECT_SAFE(ini_sect, ini_file, "file");
+    payload.entry_point = ini_get_int(ini_file, "entrypoint", ini_sect, 0);
+    payload.version.major = ini_get_int(ini_file, "versionmajor", ini_sect, 0);
+    payload.version.minor = ini_get_int(ini_file, "versionminor", ini_sect, 0);
+    payload.version.bugfix = ini_get_int(ini_file, "versionbugfix", ini_sect, 0);
+    payload.hdr_version = ini_get_int(ini_file, "hdrversion", ini_sect, 10);     /* Fixed to 10 if not defined */
+    payload.target.plat = ini_get_int(ini_file, "targetplat", ini_sect, 0);
+    payload.target.appl = ini_get_int(ini_file, "targetappl", ini_sect, 0);
+    payload.hw_compat = ini_get_int(ini_file, "hwcompatibility", ini_sect, 0);
+    payload.lang_zone = ini_get_int(ini_file, "languagezone", ini_sect, 0);
+
+    /* 2. Section volume_config */
+    if (read_exec_sect_config(&(payload.volume_config), ini_file, "volume_config") != 0)
+    {
+        printf("Section volume_config not found!\n");
+        return -1;
+    }
+    /* 3. Section installer.plf */
+    if (read_exec_sect_config(&(payload.installer), ini_file, "installer") != 0)
+    {
+        printf("Section installer.plf not found!\n");
+        return -1;
+    }
+    /* 4. Section bootloader */
+    if (read_exec_sect_config(&(payload.bootloader), ini_file, "bootloader") != 0)
+    {
+        printf("Section bootloader not found!\n");
+        return -1;
+    }
+    /* 5. Section main_boot */
+    if (read_exec_sect_config(&(payload.main_boot), ini_file, "main_boot") != 0)
+    {
+        printf("Section main_boot.plf not found!\n");
+        return -1;
+    }
+    /* 6. Sections file_action */
+    /* TO COMPLETE */
+    
+    printf("Creating %s ...\n", command_args.output);
+    
+    /* Creation starts */
+    plf_file_idx = plf_create_file(command_args.output);
+    if (plf_file_idx < 0)
+    {
+        printf("!!! plf_create_file failed\n");
+        return -1;
+    }
+    
+    /* Set file header */
+    plf_file_hdr = plf_get_file_header(plf_file_idx);
+    plf_file_hdr->dwFileType   = 0; /* ARCHIVE TYPE */
+    plf_file_hdr->dwEntryPoint = payload.entry_point;
+    plf_file_hdr->dwHdrVersion = payload.hdr_version;
+    plf_file_hdr->dwVersionMajor = payload.version.major;
+    plf_file_hdr->dwVersionMinor = payload.version.minor;
+    plf_file_hdr->dwVersionBugfix = payload.version.bugfix;
+    plf_file_hdr->dwTargetAppl = payload.target.appl;
+    plf_file_hdr->dwTargetPlat = payload.target.plat;
+    plf_file_hdr->dwHwCompat = payload.hw_compat;
+    plf_file_hdr->dwLangZone = payload.lang_zone;
+    
+    /* Create sections */
+    printf("Writting sections...\n");
+    tmp_val = 0;
+    tmp_val += write_plf_exec_sect(&(payload.volume_config), plf_file_idx, 11);
+    tmp_val += write_plf_exec_sect(&(payload.installer), plf_file_idx, 12);
+    tmp_val += write_plf_exec_sect(&(payload.bootloader), plf_file_idx, 7);
+    tmp_val += write_plf_exec_sect(&(payload.main_boot), plf_file_idx, 3);
+    // if (has_file_action) <-- TODO //
+
+    if (tmp_val < 0)
+    {
+        printf("!!! some sections could not be written.. aborting\n");
+        return -1;
+    }
+    printf("Sections written\n");
+
+    plf_close(plf_file_idx);
+
+    /* Verify */
+    plf_file_idx = plf_open_file(command_args.output);
+    tmp_val = plf_verify(plf_file_idx);
+    plf_close(plf_file_idx);
+    if (tmp_val < 0)
+    {
+        printf("plf_verify failed: %d\n", tmp_val);
+        return -1;
+    }
+
+
+    return 0;
 }
 
 int build_kernel(const s_ini_handle* ini_file)
@@ -365,9 +496,9 @@ int build(void)
     }
 
     if (stricmp(ini_parm->value, "kernel") == 0)
-    {
         ret_val = build_kernel(ini_file);
-    }
+    else if (stricmp(ini_parm->value, "payload") == 0)
+	ret_val = build_load(ini_file);
     else
     {
         printf("!!! unkown value %s for parameter type\n", ini_parm->value);
