@@ -205,7 +205,7 @@ int verify_kernel_config(const s_kernel_config* cfg)
         ++error;
     }
 
-    if (cfg->hdr_version < 10 || cfg->hdr_version > 11)
+    if (cfg->hdr_version < 10 || cfg->hdr_version > 14)
     {
         printf("!!! unsupported header version");
         ++error;
