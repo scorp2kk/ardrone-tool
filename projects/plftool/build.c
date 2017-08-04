@@ -21,6 +21,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +37,6 @@
 #  define stricmp strcasecmp
 # endif
 #endif
-
 
 #define BUILD_TYPE_KERNEL   1
 #define BUILD_TYPE_ARCHIVE  2
@@ -203,37 +204,37 @@ int write_plf_exec_sect(const s_exec_sect_config* cfg, int fileIdx, int type)
 
 int write_file_actions(const s_load_config* payload, int fileIdx)
 {
-    DIR *dirp;
     s_exec_sect_config* cfg;
-    struct dirent *entry;
+    struct dirent **entrylist;
     char * file_path;
-
-    dirp = opendir(payload->facts_input);
-    if (!dirp) {
-	    printf("Unable to open File Actions dir!\n");
-	    return -1;
-    }
+    int n, i;
     
-    while ((entry = readdir(dirp))) {
-        
-        if (!strcmp (entry->d_name, "."))
-            continue; 
-        if (!strcmp (entry->d_name, ".."))
-            continue;
+    n = scandir(payload->facts_input, &entrylist, NULL, versionsort);
+    if (n < 0) {
+	    printf("Unable to open directory entry!\n");
+            return -1;
+    } else {
+        for (i = 0; i < n; i++) {
+		if (!strcmp (entrylist[i]->d_name, "."))
+		    continue; 
+		if (!strcmp (entrylist[i]->d_name, ".."))
+		    continue;
 
-	file_path = (char *)malloc(strlen(payload->facts_input) + strlen(entry->d_name) + 1);
-        sprintf(file_path, "%s/%s", payload->facts_input, entry->d_name);
+		file_path = (char *)malloc(strlen(payload->facts_input) + strlen(entrylist[i]->d_name) + 1);
+		sprintf(file_path, "%s/%s", payload->facts_input, entrylist[i]->d_name);
+printf("DEBUG: file_path: %s \n", file_path);
+		cfg = (s_exec_sect_config *)malloc(sizeof(s_exec_sect_config));
 
-        cfg = (s_exec_sect_config *)malloc(sizeof(s_exec_sect_config));
-
-        cfg->load_addr = 0;
-        cfg->input_file = file_path;
-	
-        write_plf_exec_sect(cfg, fileIdx, 9);	
-	free(cfg);
+		cfg->load_addr = 0;
+		cfg->input_file = file_path;
+		
+		write_plf_exec_sect(cfg, fileIdx, 9);	
+		free(cfg);
+		free(entrylist[i]);
+	}
     }
-
-    closedir (dirp);
+	
+    free(entrylist);
     return 0;
 }
 
