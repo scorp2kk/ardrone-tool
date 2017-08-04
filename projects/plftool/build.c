@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include "plf.h"
 #include "build.h"
 #include "ini.h"
@@ -79,7 +80,7 @@ typedef struct s_load_config_tag
     s_exec_sect_config installer;
     s_exec_sect_config volume_config;
     s_exec_sect_config main_boot;
-    s_exec_sect_config *file_action;
+    const char* facts_input;
 
 } s_load_config;
 
@@ -109,6 +110,19 @@ typedef struct s_kernel_config_tag
     s_exec_sect_config bootparams;
 
 } s_kernel_config;
+
+const char* read_archive_config(const s_ini_handle* ini_file, const char* sect_name)
+{
+    const s_ini_section* ini_sect;
+    if (ini_file == 0 || sect_name == 0)
+        return NULL;
+
+    ini_sect = ini_get_section(ini_file, sect_name );
+    if (!ini_sect)
+        return NULL;
+
+    return ini_get_string(ini_file, "file", ini_sect, 0);
+}
 
 int read_exec_sect_config(s_exec_sect_config* cfg, const s_ini_handle* ini_file, const char* sect_name)
 {
@@ -187,6 +201,42 @@ int write_plf_exec_sect(const s_exec_sect_config* cfg, int fileIdx, int type)
 
 }
 
+int write_file_actions(const s_load_config* payload, int fileIdx)
+{
+    DIR *dirp;
+    s_exec_sect_config* cfg;
+    struct dirent *entry;
+    char * file_path;
+
+    dirp = opendir(payload->facts_input);
+    if (!dirp) {
+	    printf("Unable to open File Actions dir!\n");
+	    return -1;
+    }
+    
+    while ((entry = readdir(dirp))) {
+        
+        if (!strcmp (entry->d_name, "."))
+            continue; 
+        if (!strcmp (entry->d_name, ".."))
+            continue;
+
+	file_path = (char *)malloc(strlen(payload->facts_input) + strlen(entry->d_name) + 1);
+        sprintf(file_path, "%s/%s", payload->facts_input, entry->d_name);
+
+        cfg = (s_exec_sect_config *)malloc(sizeof(s_exec_sect_config));
+
+        cfg->load_addr = 0;
+        cfg->input_file = file_path;
+	
+        write_plf_exec_sect(cfg, fileIdx, 9);	
+	free(cfg);
+    }
+
+    closedir (dirp);
+    return 0;
+}
+
 int verify_kernel_config(const s_kernel_config* cfg)
 {
     int error = 0;
@@ -260,7 +310,12 @@ int build_load(const s_ini_handle* ini_file)
         return -1;
     }
     /* 6. Sections file_action */
-    /* TO COMPLETE */
+    payload.facts_input = read_archive_config(ini_file, "file_actions");
+    if (!payload.facts_input)
+    {
+        printf("Directory for file_actions not found!\n");
+        return -1;
+    }
     
     printf("Creating %s ...\n", command_args.output);
     
@@ -274,7 +329,7 @@ int build_load(const s_ini_handle* ini_file)
     
     /* Set file header */
     plf_file_hdr = plf_get_file_header(plf_file_idx);
-    plf_file_hdr->dwFileType   = 0; /* ARCHIVE TYPE */
+    plf_file_hdr->dwFileType   = 2; /* ARCHIVE TYPE */
     plf_file_hdr->dwEntryPoint = payload.entry_point;
     plf_file_hdr->dwHdrVersion = payload.hdr_version;
     plf_file_hdr->dwVersionMajor = payload.version.major;
@@ -292,7 +347,7 @@ int build_load(const s_ini_handle* ini_file)
     tmp_val += write_plf_exec_sect(&(payload.installer), plf_file_idx, 12);
     tmp_val += write_plf_exec_sect(&(payload.bootloader), plf_file_idx, 7);
     tmp_val += write_plf_exec_sect(&(payload.main_boot), plf_file_idx, 3);
-    // if (has_file_action) <-- TODO //
+    tmp_val += write_file_actions(&payload, plf_file_idx);
 
     if (tmp_val < 0)
     {
