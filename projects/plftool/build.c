@@ -330,7 +330,7 @@ int build_load(const s_ini_handle* ini_file)
     
     /* Set file header */
     plf_file_hdr = plf_get_file_header(plf_file_idx);
-    plf_file_hdr->dwFileType   = 2; /* ARCHIVE TYPE */
+    plf_file_hdr->dwFileType   = BUILD_TYPE_ARCHIVE; /* ARCHIVE TYPE */
     plf_file_hdr->dwEntryPoint = payload.entry_point;
     plf_file_hdr->dwHdrVersion = payload.hdr_version;
     plf_file_hdr->dwVersionMajor = payload.version.major;
@@ -461,7 +461,7 @@ int build_kernel(const s_ini_handle* ini_file)
 
     /* Set file header */
     plf_file_hdr = plf_get_file_header(plf_file_idx);
-    plf_file_hdr->dwFileType   = 1;
+    plf_file_hdr->dwFileType   = BUILD_TYPE_KERNEL;
     plf_file_hdr->dwEntryPoint = kernel.entry_point;
     plf_file_hdr->dwHdrVersion = kernel.hdr_version;
     plf_file_hdr->dwVersionMajor = kernel.version.major;
