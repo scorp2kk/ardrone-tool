@@ -222,7 +222,6 @@ int write_file_actions(const s_load_config* payload, int fileIdx)
 
 		file_path = (char *)malloc(strlen(payload->facts_input) + strlen(entrylist[i]->d_name) + 1);
 		sprintf(file_path, "%s/%s", payload->facts_input, entrylist[i]->d_name);
-printf("DEBUG: file_path: %s \n", file_path);
 		cfg = (s_exec_sect_config *)malloc(sizeof(s_exec_sect_config));
 
 		cfg->load_addr = 0;
